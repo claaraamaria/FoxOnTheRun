@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "384330584514",
+    "firebase_url": "https://foxontherun-502da-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "foxontherun-502da",
+    "storage_bucket": "foxontherun-502da.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384330584514:android:ed8fba0f2664355e2a865b",
+        "android_client_info": {
+          "package_name": "com.example.foxontherun"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "384330584514-89qalj9dbuoeq3sq65gjclaep975vttj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw-0OOEFSJifvHaGpd8gucjMlHvm2nEGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "384330584514-89qalj9dbuoeq3sq65gjclaep975vttj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
