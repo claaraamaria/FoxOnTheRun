@@ -1,5 +1,6 @@
 package com.example.foxontherun;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -87,17 +88,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         progressBar.setVisibility(View.VISIBLE);
 
-//        mAuth.signInWithEmailAndPassword(email, password).addOnCanceledListener(new OnCompleteListener<AuthResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<AuthResult> task) {
-//                if (task.isSuccessful()) {
-//                    //redirect to user profile
-//                    startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-//                } else {
-//                    Toast.makeText(MainActivity.this, "Failed to login! Plase check your credentials!", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        })
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    //redirect to user profile
+                    startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                    progressBar.setVisibility(View.GONE);
+                } else {
+                    Toast.makeText(MainActivity.this, "Failed to login! Please check your credentials!", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 }
 
