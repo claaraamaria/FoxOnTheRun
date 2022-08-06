@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterUser extends AppCompatActivity implements View.OnClickListener {
@@ -114,12 +115,11 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(RegisterUser.this, "User has been registered successfully!", Toast.LENGTH_SHORT).show();
-                                                progressBar.setVisibility(View.GONE);
                                                 //redirect to login layout!
                                             } else {
                                                 Toast.makeText(RegisterUser.this, "Failed to register! Something went wrong!", Toast.LENGTH_SHORT).show();
-                                                progressBar.setVisibility(View.GONE);
                                             }
+                                            progressBar.setVisibility(View.GONE);
                                         }
                                     });
                         }else{
