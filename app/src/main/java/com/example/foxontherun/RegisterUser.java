@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -15,10 +16,17 @@ import android.widget.Toast;
 
 import com.example.foxontherun.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterUser extends AppCompatActivity implements View.OnClickListener {
 
@@ -27,7 +35,9 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
     private EditText editTextFullName, editTextUsername, editTextEmail, editTextPassword;
     private ProgressBar progressBar;
 
-    private FirebaseAuth mAuth;
+    private FirebaseAuth fAuth;
+    private FirebaseFirestore fstore;
+    private String userID;
 
 
     @Override
@@ -35,7 +45,8 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_user);
 
-        mAuth = FirebaseAuth.getInstance();
+        fAuth = FirebaseAuth.getInstance();
+        fstore = FirebaseFirestore.getInstance();
 
         banner = (TextView) findViewById(R.id.banner);
         banner.setOnClickListener(this);
@@ -49,7 +60,6 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
         editTextPassword = (EditText) findViewById(R.id.password);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
     }
 
     @Override
@@ -81,6 +91,11 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
             editTextUsername.requestFocus();
             return;
         }
+        if (!username.matches("^([a-zA-Z0-9.]+@)?([a-zA-Z0-9.])+$")){
+            editTextUsername.setError("No spaces allowed!");
+            editTextUsername.requestFocus();
+            return;
+        }
 
         if (email.isEmpty()) {
             editTextEmail.setError("E-mail is required!");
@@ -101,33 +116,32 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            User user = new User(fullName, username, email);
+        fAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    User user = new User(fullName, username, email);
 
-                            FirebaseDatabase.getInstance().getReference("Users")
-                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                Toast.makeText(RegisterUser.this, "User has been registered successfully!", Toast.LENGTH_SHORT).show();
-                                                //redirect to login layout!
-                                            } else {
-                                                Toast.makeText(RegisterUser.this, "Failed to register! Something went wrong!", Toast.LENGTH_SHORT).show();
-                                            }
-                                            progressBar.setVisibility(View.GONE);
-                                        }
-                                    });
-                        }else{
-                            Toast.makeText(RegisterUser.this, "Failed to register! Something went wrong!", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    }
-                });
+                    FirebaseDatabase.getInstance().getReference("Users")
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(RegisterUser.this, "User has been registered successfully!", Toast.LENGTH_SHORT).show();
+                                        //redirect to login layout!
+                                    } else {
+                                        Toast.makeText(RegisterUser.this, "Failed to register! Something went wrong!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                } else {
+                    Toast.makeText(RegisterUser.this, "Failed to register! Something went wrong!", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
 
     }
 

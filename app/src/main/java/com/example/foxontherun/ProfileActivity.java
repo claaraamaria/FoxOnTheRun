@@ -49,7 +49,7 @@ public class ProfileActivity extends AppCompatActivity {
         final TextView greetingTextView = (TextView) findViewById(R.id.greeting);
         final TextView fullNameTextView = (TextView) findViewById(R.id.fullName);
         final TextView emailTextView = (TextView) findViewById(R.id.emailAddress);
-        final TextView ageTextView = (TextView) findViewById(R.id.age);
+        final TextView usernameTextView = (TextView) findViewById(R.id.username);
 
         reference.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -59,12 +59,12 @@ public class ProfileActivity extends AppCompatActivity {
                 if (userProfile != null) {
                     String fullName= userProfile.fullName;
                     String email = userProfile.email;
-                    String age = userProfile.age;
+                    String username = userProfile.username;
 
                     greetingTextView.setText("Welcome, "+ fullName+ "!");
                     fullNameTextView.setText(fullName);
                     emailTextView.setText(email);
-                    ageTextView.setText(age);
+                    usernameTextView.setText(username);
                 }
             }
 

@@ -2,14 +2,14 @@ package com.example.foxontherun.Model;
 
 public class User {
 
-    public String fullName, age, email;
+    public String fullName, username, email;
 
     public User(){
     }
 
-    public User(String fullName, String age, String email) {
+    public User(String fullName, String username, String email) {
         this.fullName = fullName;
-        this.age = age;
+        this.username = username;
         this.email = email;
     }
 }
