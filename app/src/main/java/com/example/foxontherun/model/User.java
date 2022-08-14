@@ -1,4 +1,4 @@
-package com.example.foxontherun.Model;
+package com.example.foxontherun.model;
 
 public class User {
 

@@ -13,6 +13,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.foxontherun.login.ForgotPassword;
+import com.example.foxontherun.login.RegisterUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -103,12 +105,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     if (user.isEmailVerified()) {
                         //redirect to user profile
-                        startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                        startActivity(new Intent(MainActivity.this, StartUpScreen.class));
                     } else {
                         user.sendEmailVerification();
                         Toast.makeText(MainActivity.this, "Check your email to verify your account.", Toast.LENGTH_SHORT).show();
                     }
-
                 } else {
                     Toast.makeText(MainActivity.this, "Failed to login! Please check your credentials!", Toast.LENGTH_SHORT).show();
                 }
