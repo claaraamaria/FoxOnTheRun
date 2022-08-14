@@ -1,4 +1,4 @@
-package com.example.foxontherun;
+package com.example.foxontherun.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.foxontherun.R;
 import com.example.foxontherun.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,37 +21,37 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class ProfileActivity extends AppCompatActivity {
+public class HomeScreenActivity extends AppCompatActivity implements View.OnClickListener {
 
     private FirebaseUser user;
     private DatabaseReference reference;
     private String userID;
 
-    private Button logout;
+    private TextView usernameTextView;
+    private Button historyBtn, profileBtn, playBtn;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
-
-        logout = (Button) findViewById(R.id.signOut);
-
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(ProfileActivity.this, MainActivity.class));
-            }
-        });
+        setContentView(R.layout.activity_start_up_screen);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         reference = FirebaseDatabase.getInstance().getReference("Users");
         userID = user.getUid();
 
-        final TextView greetingTextView = findViewById(R.id.greeting);
-        final TextView fullNameTextView = findViewById(R.id.fullName);
-        final TextView emailTextView = findViewById(R.id.emailAddress);
-        final TextView usernameTextView = findViewById(R.id.username);
+        usernameTextView = findViewById(R.id.username);
+
+        historyBtn = findViewById(R.id.gameHistory);
+        historyBtn.setOnClickListener(this);
+
+        profileBtn = findViewById(R.id.profile);
+        profileBtn.setOnClickListener(this);
+
+        playBtn = findViewById(R.id.play);
+        playBtn.setOnClickListener(this);
+
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         reference.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -57,22 +59,30 @@ public class ProfileActivity extends AppCompatActivity {
                 User userProfile = snapshot.getValue(User.class);
 
                 if (userProfile != null) {
-                    String fullName = userProfile.fullName;
-                    String email = userProfile.email;
                     String username = userProfile.username;
-
-                    greetingTextView.setText("Welcome, " + fullName + "!");
-                    fullNameTextView.setText(fullName);
-                    emailTextView.setText(email);
-                    usernameTextView.setText(username);
+                    usernameTextView.setText(username + " !");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ProfileActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.gameHistory:
+                startActivity(new Intent(this, GameHistoryActivity.class));
+                break;
+            case R.id.profile:
+                startActivity(new Intent(this, ProfileActivity.class));
+                break;
+            case R.id.play:
+                Toast.makeText(this, "Play will be implemented!", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 }

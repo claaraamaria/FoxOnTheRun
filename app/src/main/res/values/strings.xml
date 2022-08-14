@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">FoxOnTheRun</string>
+    <string name="gameHistory">
+        Radiogoniometria de amator sau cum e cunoscuta ca "Vânătoare de vulpi" a fost și este practicată
+        de mulți tineri de pe meleaguri vâlcene.
+        Ce este radiogoniometria de amator ?
+        Radiogoniometria este o formă de întrecere sportivă în care se confruntă mai mulţi concurenţi
+        care trebuie să parcurgă, cu ajutorul receptorului radio, a hărţii şi busolei, un anumit traseu,
+        în cel mai scurt timp posibil.
+        „Traseul este materializat prin staţii de emisie. Sportivii trebuie să aleagă cel mai convenabil
+        traseu între aceste staţii de emisie. Acest sport presupune o solidă pregătire tehnică şi
+        de lucru cu receptorul radio şi o excelentă capacitate perceptiv – senzorială, în vederea
+        interceptării semnalelor radio emise de "vulpi", a analizei hărţii şi luării deciziilor
+        adecvate într-un timp cât mai scurt“, se arată într-un comunicat al Comisiei de Radiogoniometrie
+        a Federaţiei Române de Radioamatorism.
+        Activitatea de "vanatoare de vulpi" este prezentata pe site-ul  http://www.ardfromania.ro/
+
+        Un articol referitor la această activitate !
+        http://www.radioamator.ro/articole/view.php?id=672
+
+        Fostele Case de Pionieri din județ au fost deosebit de active în acest domeniu înainte de 1989!
+        Aveți mai jos o fotografie din acea perioadă !
+    </string>
 </resources>
