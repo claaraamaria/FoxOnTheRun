@@ -81,7 +81,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 startActivity(new Intent(this, ProfileActivity.class));
                 break;
             case R.id.play:
-                Toast.makeText(this, "Play will be implemented!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, GPSActivity.class));
                 break;
         }
     }
