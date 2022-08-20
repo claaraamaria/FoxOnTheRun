@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
-import com.example.foxontherun.login.RegisterUser;
 import com.example.foxontherun.model.Room;
 import com.example.foxontherun.model.User;
 import com.example.foxontherun.server.RESTClient;
@@ -124,7 +123,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         final Dialog dialog = new Dialog(HomeScreenActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
-        dialog.setContentView(R.layout.activity_code_room_dialog);
+        dialog.setContentView(R.layout.code_room_dialog);
 
         final EditText roomCodeEt = dialog.findViewById(R.id.editTextCode);
         Button submitButton = dialog.findViewById(R.id.submitButton);
@@ -137,7 +136,6 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 if (roomCodeCorrect(roomCode)){
                     startActivity(new Intent(HomeScreenActivity.this, LoadingActivity.class));
                     //start loading activity
-
                 }else{
                     Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
                 }
