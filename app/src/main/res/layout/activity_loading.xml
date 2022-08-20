@@ -47,7 +47,7 @@
         android:id="@+id/textWait"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Waiting for another players to join..."
+        android:text="Waiting for other players to join..."
         android:textStyle="italic"
         android:textSize="18sp"
         android:layout_marginTop="50dp"

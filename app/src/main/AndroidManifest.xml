@@ -17,10 +17,7 @@
         android:theme="@style/Theme.FoxOnTheRun"
         tools:targetApi="31">
         <activity
-            android:name=".CodeRoomActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoadingActivity"
+            android:name=".activities.LoadingActivity"
             android:exported="false" />
         <activity
             android:name=".activities.GPSActivity"

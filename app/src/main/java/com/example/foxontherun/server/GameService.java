@@ -23,7 +23,7 @@ public interface GameService {
     Call<ResponseBody> createRoom(@Path("roomName") String roomName, @Body Player player);
 
     @POST("game/join/{roomName}")
-    Call<ResponseBody> joinRoom(@Path("roomName") String roomName, @Body Player player);
+    Call<Boolean> joinRoom(@Path("roomName") String roomName, @Body Player player);
 
     @POST("game/location/{roomName}")
     Call<ResponseBody> calculateDistance(@Path("roomName") String roomName, @Body LocationDTO playerLocation);

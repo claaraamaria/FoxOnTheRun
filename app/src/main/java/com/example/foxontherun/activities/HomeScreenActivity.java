@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
+import com.example.foxontherun.model.Player;
 import com.example.foxontherun.model.Room;
 import com.example.foxontherun.model.User;
 import com.example.foxontherun.server.RESTClient;
@@ -43,6 +44,8 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     private TextView usernameTextView;
     private Button historyBtn, profileBtn, playBtn;
     private ProgressBar progressBar;
+
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,39 +77,13 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         });
 
 
-        // Exemplu de call catre API
-        Call<List<Room>> callResult = RESTClient
-                .getInstance()
-                .getApi()
-                .getRooms();
-
-        callResult.enqueue(new Callback<List<Room>>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
-                List<Room> roomsList = response.body();
-                if(roomsList != null){
-                    roomsList.stream().forEach(r -> {
-                        System.out.println(r.getRoomName());
-                    });
-                }
-                else{
-                    System.out.println(response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Room>> call, Throwable t) {
-                System.out.println(t.getMessage());
-            }
-        });
-
         reference.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User userProfile = snapshot.getValue(User.class);
 
                 if (userProfile != null) {
+                    userName = userProfile.username;
                     String username = userProfile.username;
                     usernameTextView.setText(username + " !");
                 }
@@ -133,21 +110,39 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
             public void onClick(View v) {
                 String roomCode = roomCodeEt.getText().toString();
 
-                if (roomCodeCorrect(roomCode)){
-                    startActivity(new Intent(HomeScreenActivity.this, LoadingActivity.class));
-                    //start loading activity
-                }else{
-                    Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
-                }
+                roomCodeCorrect(roomCode);
+
                 dialog.dismiss();
             }
         });
         dialog.show();
     }
 
-    private boolean roomCodeCorrect(String roomCode) {
-        //call catre backend pt verificarea validitatii codului
-        return false;
+    private void roomCodeCorrect(String roomCode) {
+        Player player = new Player(userName);
+        Call<Boolean> callResult = RESTClient
+                .getInstance()
+                .getApi()
+                .joinRoom(roomCode, player);
+
+        callResult.enqueue(new Callback<Boolean>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                Boolean result = response.body();
+                System.out.println(result.booleanValue());
+                if (result) {
+                    startActivity(new Intent(HomeScreenActivity.this, LoadingActivity.class));
+                } else {
+                    Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                System.out.println(t.getMessage());
+                Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

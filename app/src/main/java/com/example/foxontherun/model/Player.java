@@ -1,11 +1,10 @@
 package com.example.foxontherun.model;
 
-import java.util.Objects;
-
 public class Player {
 
     private String name;
     private Boolean type;
+    private String roomName;
     private Double latitude;
     private Double longitude;
     private Double altitude;
@@ -13,11 +12,8 @@ public class Player {
     public Player() {
     }
 
-    public Player(String name, Double latitude, Double longitude, Double altitude) {
+    public Player(String name) {
         this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.altitude = altitude;
     }
 
     public String getName() {
