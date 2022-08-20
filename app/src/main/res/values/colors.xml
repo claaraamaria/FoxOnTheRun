@@ -8,4 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="fox">#C8672B</color>
+
+    <color name="hot">#C0392B</color>
+    <color name="warm">#E67E22</color>
+    <color name="cold">#F1C40F</color>
+    <color name="very_cold">#3498DB</color>
 </resources>

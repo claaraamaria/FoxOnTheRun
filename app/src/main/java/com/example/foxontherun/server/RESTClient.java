@@ -24,7 +24,6 @@ public class RESTClient {
     }
 
     public synchronized GameService getApi(){
-        GameService gs = retrofit.create(GameService.class);
         return retrofit.create(GameService.class);
     }
 }

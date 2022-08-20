@@ -17,6 +17,12 @@
         android:theme="@style/Theme.FoxOnTheRun"
         tools:targetApi="31">
         <activity
+            android:name=".HunterScreenActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FoxWaitActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.LoadingActivity"
             android:exported="false" />
         <activity

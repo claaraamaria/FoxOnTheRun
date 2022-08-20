@@ -96,6 +96,18 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.gameHistory:
+                startActivity(new Intent(this, GameHistoryActivity.class));
+                break;
+            case R.id.profile:
+                startActivity(new Intent(this, ProfileActivity.class));
+                break;
+        }
+    }
+
     private void showCodeRoomDialog() {
         final Dialog dialog = new Dialog(HomeScreenActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -143,20 +155,5 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.gameHistory:
-                startActivity(new Intent(this, GameHistoryActivity.class));
-                break;
-            case R.id.profile:
-                startActivity(new Intent(this, ProfileActivity.class));
-                break;
-            case R.id.play:
-                startActivity(new Intent(this, GPSActivity.class));
-                break;
-        }
     }
 }
