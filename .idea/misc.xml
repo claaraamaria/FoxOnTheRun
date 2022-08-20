@@ -3,9 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_code_room.xml" value="0.3009833262077811" />
+        <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_code_room_dialog.xml" value="0.3009833262077811" />
         <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_forgot_password.xml" value="0.3009833262077811" />
         <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_game_history.xml" value="0.3009833262077811" />
         <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_gps_activity.xml" value="0.3009833262077811" />
+        <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_home_screen.xml" value="0.3009833262077811" />
+        <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_loading.xml" value="0.3009833262077811" />
         <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_main.xml" value="0.27107887579329104" />
         <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_profile.xml" value="0.27379873073436084" />
         <entry key="..\:/Personal/FoxOnTheRun/app/src/main/res/layout/activity_register_user.xml" value="0.3009833262077811" />

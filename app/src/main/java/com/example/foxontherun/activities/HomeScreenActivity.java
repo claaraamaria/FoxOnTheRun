@@ -4,19 +4,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
+import com.example.foxontherun.login.RegisterUser;
 import com.example.foxontherun.model.Room;
 import com.example.foxontherun.model.User;
-import com.example.foxontherun.server.GameService;
 import com.example.foxontherun.server.RESTClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,11 +31,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class HomeScreenActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -47,7 +48,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start_up_screen);
+        setContentView(R.layout.activity_home_screen);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         reference = FirebaseDatabase.getInstance().getReference("Users");
@@ -64,7 +65,14 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         playBtn = findViewById(R.id.play);
         playBtn.setOnClickListener(this);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
+
+        playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCodeRoomDialog();
+            }
+        });
 
 
         // Exemplu de call catre API
@@ -110,6 +118,38 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showCodeRoomDialog() {
+        final Dialog dialog = new Dialog(HomeScreenActivity.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.activity_code_room_dialog);
+
+        final EditText roomCodeEt = dialog.findViewById(R.id.editTextCode);
+        Button submitButton = dialog.findViewById(R.id.submitButton);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String roomCode = roomCodeEt.getText().toString();
+
+                if (roomCodeCorrect(roomCode)){
+                    startActivity(new Intent(HomeScreenActivity.this, LoadingActivity.class));
+                    //start loading activity
+
+                }else{
+                    Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private boolean roomCodeCorrect(String roomCode) {
+        //call catre backend pt verificarea validitatii codului
+        return false;
     }
 
     @Override
