@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.example.foxontherun.R;
 import com.example.foxontherun.model.Player;
-import com.example.foxontherun.model.Room;
 import com.example.foxontherun.model.User;
 import com.example.foxontherun.server.RESTClient;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,8 +27,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,8 +41,6 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     private TextView usernameTextView;
     private Button historyBtn, profileBtn, playBtn;
     private ProgressBar progressBar;
-
-    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +78,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 User userProfile = snapshot.getValue(User.class);
 
                 if (userProfile != null) {
-                    userName = userProfile.username;
+                    Player.setGlobalName(userProfile.username);
                     String username = userProfile.username;
                     usernameTextView.setText(username + " !");
                 }
@@ -122,8 +117,9 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
             public void onClick(View v) {
                 String roomCode = roomCodeEt.getText().toString();
 
-                roomCodeCorrect(roomCode);
+                Player.setGlobalRoomName(roomCode);
 
+                roomCodeCorrect(roomCode);
                 dialog.dismiss();
             }
         });
@@ -131,11 +127,10 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void roomCodeCorrect(String roomCode) {
-        Player player = new Player(userName);
         Call<Boolean> callResult = RESTClient
                 .getInstance()
                 .getApi()
-                .joinRoom(roomCode, player);
+                .joinRoom(roomCode, Player.getGlobalName());
 
         callResult.enqueue(new Callback<Boolean>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -149,6 +144,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                     Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
                 System.out.println(t.getMessage());

@@ -32,7 +32,7 @@ public class FoxWaitActivity extends AppCompatActivity {
 
     private void startStopTimer() {
         if (timerRunning) {
-           // stopTimer();
+            // stopTimer();
         } else {
             startTimer();
         }
@@ -43,8 +43,6 @@ public class FoxWaitActivity extends AppCompatActivity {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeLeftMilliseconds = millisUntilFinished;
-                //
-
                 updateTimer();
             }
 

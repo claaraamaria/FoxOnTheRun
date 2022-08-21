@@ -2,65 +2,60 @@ package com.example.foxontherun.model;
 
 public class Player {
 
-    private String name;
-    private Boolean type;
-    private String roomName;
-    private Double latitude;
-    private Double longitude;
-    private Double altitude;
+    private static String globalName;
+    private static Boolean globalRole;
+    private static String globalRoomName;
+    private static Double latitude;
+    private static Double longitude;
+    private static Double altitude;
 
-    public Player() {
+
+    public static String getGlobalName() {
+        return globalName;
     }
 
-    public Player(String name) {
-        this.name = name;
+    public static void setGlobalName(String globalName) {
+        Player.globalName = globalName;
     }
 
-    public String getName() {
-        return name;
+    public static Boolean getGlobalRole() {
+        return globalRole;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public static void setGlobalRole(Boolean globalRole) {
+        Player.globalRole = globalRole;
     }
 
-    public Boolean getType() {
-        return type;
+    public static String getGlobalRoomName() {
+        return globalRoomName;
     }
 
-    public void setType(Boolean type) {
-        this.type = type;
+    public static void setGlobalRoomName(String globalRoomName) {
+        Player.globalRoomName = globalRoomName;
     }
 
-    public Double getLatitude() {
+    public static Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
+    public static void setLatitude(Double latitude) {
+        Player.latitude = latitude;
     }
 
-    public Double getLongitude() {
+    public static Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
+    public static void setLongitude(Double longitude) {
+        Player.longitude = longitude;
     }
 
-    public Double getAltitude() {
+    public static Double getAltitude() {
         return altitude;
     }
 
-    public void setAltitude(Double altitude) {
-        this.altitude = altitude;
+    public static void setAltitude(Double altitude) {
+        Player.altitude = altitude;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Player player = (Player) o;
-        return name.equals(player.name);
-    }
 }

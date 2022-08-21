@@ -1,5 +1,6 @@
 package com.example.foxontherun.server;
 
+import com.example.foxontherun.model.DistanceDTO;
 import com.example.foxontherun.model.LocationDTO;
 import com.example.foxontherun.model.Player;
 import com.example.foxontherun.model.Room;
@@ -16,25 +17,12 @@ import retrofit2.http.Path;
 
 public interface GameService {
 
-    @GET("game/rooms")
-    Call<List<Room>> getRooms();
-
-    @POST("game/create/{roomName}")
-    Call<ResponseBody> createRoom(@Path("roomName") String roomName, @Body Player player);
-
-    @POST("game/join/{roomName}")
-    Call<Boolean> joinRoom(@Path("roomName") String roomName, @Body Player player);
+    @POST("game/join/{roomName}/{playerName}")
+    Call<Boolean> joinRoom(@Path("roomName") String roomName, @Path("playerName") String playerName);
 
     @POST("game/location/{roomName}")
-    Call<ResponseBody> calculateDistance(@Path("roomName") String roomName, @Body LocationDTO playerLocation);
+    Call<DistanceDTO> updateLocation(@Path("roomName") String roomName, @Body LocationDTO playerLocation);
 
-    @POST("game/assign/{roomName}")
-    Call<ResponseBody> assignRoles(@Path("roomName") String roomName);
-
-    @POST("game/exit/{roomName}/{playerName}")
-    Call<ResponseBody> exitGameSession(@Path("roomName") String roomName, @Path("playerName") String playerName);
-
-    @POST("game/end/{roomName}/{whoWon}")
-    Call<ResponseBody> endGameRound(@Path("roomName") String roomName, @Path("whoWon") Boolean whoWon);
-
+    @GET("game/role/{roomName}/{playerName}")
+    Call<Boolean> getRole(@Path("roomName") String roomName, @Path("playerName") String playerName);
 }

@@ -7,7 +7,8 @@ public class LocationDTO {
     private Double longitude;
     private Double altitude;
 
-    public LocationDTO() {
+    public LocationDTO(String name) {
+        this.name = name;
     }
 
     public LocationDTO(String name, Double latitude, Double longitude, Double altitude) {
