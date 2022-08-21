@@ -30,6 +30,8 @@ public class LoadingActivity extends AppCompatActivity {
         progressBar.setScaleY(3f);
 
         progressAnimation();
+        //cand incepe activitatea, call catre back end
+        //la fiecare 5 sec de update player(username, roomName, lon, lat, alt)
     }
 
     public void progressAnimation(){
