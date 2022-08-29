@@ -34,9 +34,6 @@ public class GPSActivity extends AppCompatActivity {
     public static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
 
-    // clrstancu@gmail.com
-
-
     private TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_sensor, tv_updates, tv_address;
     private Switch sw_locationsupdates, sw_gps;
 
@@ -73,7 +70,7 @@ public class GPSActivity extends AppCompatActivity {
                 .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
 
         //event that is triggered whenever the time interval is met
-        locationCallBack=new LocationCallback() {
+        locationCallBack = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
@@ -193,10 +190,10 @@ public class GPSActivity extends AppCompatActivity {
 
         Geocoder geocoder = new Geocoder(this);
 
-        try{
+        try {
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             tv_address.setText(addresses.get(0).getAddressLine(0));
-        } catch(Exception e){
+        } catch (Exception e) {
             tv_address.setText("Unable to get street address");
         }
 

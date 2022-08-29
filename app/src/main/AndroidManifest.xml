@@ -23,10 +23,10 @@
             android:name=".activities.HunterScreenActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.FoxWaitActivity"
+            android:name=".activities.HideCounterActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.LoadingActivity"
+            android:name=".activities.WaitLobbyActivity"
             android:exported="false" />
         <activity
             android:name=".activities.GPSActivity"

@@ -9,8 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="fox">#C8672B</color>
 
-    <color name="hot">#C0392B</color>
-    <color name="warm">#E67E22</color>
-    <color name="cold">#F1C40F</color>
-    <color name="very_cold">#3498DB</color>
+    <color name="hot">#C0392B</color><!--15grade -->
+    <color name="warm">#E67E22</color><!--45grade -->
+    <color name="cold">#F1C40F</color><!--90grade -->
+    <color name="very_cold">#3498DB</color><!-- >90grade -->
 </resources>
