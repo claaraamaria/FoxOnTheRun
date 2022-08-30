@@ -88,20 +88,19 @@ public class WaitLobbyActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                handler.postDelayed(runnable, delay);
                 assignRole();
+                handler.postDelayed(runnable, delay);
             }
         }, delay);
         super.onResume();
     }
 
     private void assignRole() {
-        if(getStartDateCallFinished) {
+        if (getStartDateCallFinished) {
             progressAnimation(
-         this.startDateTime +
-                 GameConfiguration.getWaitLobbyTimer() * 1000 + 4870 -
-                 Calendar.getInstance().getTimeInMillis()); //4.87 am observat ca raman pana
-                                                            //se schimba screen-ul
+                    this.startDateTime +
+                            GameConfiguration.getWaitLobbyTimer() * 1000 + 4870 -
+                            Calendar.getInstance().getTimeInMillis()); //4.87 am observat ca raman pana se schimba screen-ul
             getStartDateCallFinished = false;
         }
         LocationDTO playerLocation = new LocationDTO(Player.getGlobalName());
@@ -127,8 +126,10 @@ public class WaitLobbyActivity extends AppCompatActivity {
                             Boolean roleAssignResult = response.body();
                             Player.setGlobalRole(roleAssignResult);
                             handler.removeCallbacks(runnable);
+                            finish();
                             startActivity(new Intent(WaitLobbyActivity.this, HideCounterActivity.class));
                         }
+
                         @Override
                         public void onFailure(Call<Boolean> call, Throwable t) {
                             Toast.makeText(WaitLobbyActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();

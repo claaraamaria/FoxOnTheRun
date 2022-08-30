@@ -39,7 +39,6 @@
         android:id="@+id/countdown_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:fontFamily="sans-serif-black"
         android:text="5:00"
         android:textAlignment="center"

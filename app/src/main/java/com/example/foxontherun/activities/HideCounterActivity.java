@@ -154,6 +154,7 @@ public class HideCounterActivity extends AppCompatActivity {
 
                 if (gameStateResult == 2) {
                     handler.removeCallbacks(runnable);
+                    finish();
                     if (Player.getGlobalRole()) {
                         startActivity(new Intent(HideCounterActivity.this, HunterScreenActivity.class));
                     } else {
@@ -164,7 +165,6 @@ public class HideCounterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<DistanceDTO> call, Throwable t) {
-                System.out.println(t.getMessage());
                 Toast.makeText(HideCounterActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
