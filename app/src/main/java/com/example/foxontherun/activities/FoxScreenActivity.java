@@ -16,6 +16,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
@@ -46,12 +47,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FoxScreenActivity extends AppCompatActivity
-        implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class FoxScreenActivity extends AppCompatActivity {
 
-    public static final int DEFAULT_UPDATE_INTERVAL = 3;
+    public static final int UPDATE_INTERVAL = 1;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
     private static final int PERMISSIONS_WAKELOCK = 98;
 
@@ -59,25 +57,16 @@ public class FoxScreenActivity extends AppCompatActivity
     private LocationCallback locationCallBack;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
-    private PowerManager.WakeLock wl;
-
-    GoogleMap mGoogleMap;
-    SupportMapFragment mapFrag;
-    GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
-    Marker mCurrLocationMarker;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fox_screen);
 
-        mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFrag.getMapAsync(this);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         locationRequest = LocationRequest.create()
-                .setInterval(1000 * DEFAULT_UPDATE_INTERVAL)
+                .setInterval(1000 * UPDATE_INTERVAL)
+                .setFastestInterval(1000 * UPDATE_INTERVAL)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
         //event that is triggered whenever the time interval is met
@@ -90,16 +79,12 @@ public class FoxScreenActivity extends AppCompatActivity
                     return;
                 }
 
-                placeMarker(locationResult.getLastLocation());
-
                 double playerLongitude = locationResult.getLastLocation().getLongitude();
                 double playerLatitude = locationResult.getLastLocation().getLatitude();
                 double playerAltitude = locationResult.getLastLocation().getAltitude();
 
-                System.out.println("Current :::::: " + playerLatitude + ", " + playerLongitude + ", " + playerAltitude);
-
                 LocationDTO locationDTO = new LocationDTO(Player.getGlobalName(),
-                        playerLatitude, playerLongitude, playerAltitude);
+                        playerLatitude, playerLongitude, playerAltitude, 0f);
 
                 Call<DistanceDTO> distanceDTOCall = RESTClient
                         .getInstance()
@@ -116,19 +101,17 @@ public class FoxScreenActivity extends AppCompatActivity
 
                         if (gameStateResult == 4) {
                             Toast.makeText(FoxScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
+
                             stopLocationUpdates();
-                            if(wl.isHeld()) {
-                                wl.release();
-                            }
                             finish();
+
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
                         } else if (gameStateResult == 5) {
                             Toast.makeText(FoxScreenActivity.this, "Hunters WON!", Toast.LENGTH_SHORT).show();
+
                             stopLocationUpdates();
-                            if(wl.isHeld()) {
-                                wl.release();
-                            }
                             finish();
+
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
                         }
                     }
@@ -140,6 +123,15 @@ public class FoxScreenActivity extends AppCompatActivity
                 });
             }
         };
+
+        configureGPS();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        stopLocationUpdates();
     }
 
     @SuppressLint("MissingPermission")
@@ -195,89 +187,7 @@ public class FoxScreenActivity extends AppCompatActivity
         }
     }
 
-    @SuppressLint("InvalidWakeLockTag")
-    private void acquireWakeLock() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED) {
-            PowerManager pm = (PowerManager) FoxScreenActivity.this.getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
-            wl.acquire();
-        } else {
-            //permissions not granted yet
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.WAKE_LOCK}, PERMISSIONS_WAKELOCK);
-            }
-        }
-    }
-
     private void updateUIValues(Location lastLocation) {
         //primesc distanta si status game
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        locationRequest = LocationRequest.create()
-                .setInterval(1000 * DEFAULT_UPDATE_INTERVAL)
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    public void placeMarker(@NonNull Location location) {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-
-        //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-
-        //move map camera
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-    }
-
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        mGoogleMap=googleMap;
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                //Location Permission already granted
-                buildGoogleApiClient();
-                mGoogleMap.setMyLocationEnabled(true);
-            } else {
-                configureGPS();
-            }
-        }
-        else {
-            buildGoogleApiClient();
-            mGoogleMap.setMyLocationEnabled(true);
-        }
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
     }
 }

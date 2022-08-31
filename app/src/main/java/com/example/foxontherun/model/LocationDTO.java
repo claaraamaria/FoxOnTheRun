@@ -6,16 +6,18 @@ public class LocationDTO {
     private Double latitude;
     private Double longitude;
     private Double altitude;
+    private Float phoneAzimuth;
 
     public LocationDTO(String name) {
         this.name = name;
     }
 
-    public LocationDTO(String name, Double latitude, Double longitude, Double altitude) {
+    public LocationDTO(String name, Double latitude, Double longitude, Double altitude, Float phoneAzimuth) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
+        this.phoneAzimuth = phoneAzimuth;
     }
 
     public String getName() {
@@ -48,5 +50,13 @@ public class LocationDTO {
 
     public void setAltitude(Double altitude) {
         this.altitude = altitude;
+    }
+
+    public Float getPhoneAzimuth() {
+        return phoneAzimuth;
+    }
+
+    public void setPhoneAzimuth(Float phoneAzimuth) {
+        this.phoneAzimuth = phoneAzimuth;
     }
 }

@@ -17,12 +17,18 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,16 +49,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HunterScreenActivity extends AppCompatActivity {
+public class HunterScreenActivity extends AppCompatActivity implements SensorEventListener {
 
     private View hotColdCircle;
-    private TextView hotColdText, distanceText, countDownText;
+    private View orientationCursor;
+    private TextView hotColdText, distanceText, angleText;
 
     private CountDownTimer countDownTimer;
     private long timeLeftMilliseconds = 180000; // 3 min
     private boolean timerRunning;
 
-    public static final int DEFAULT_UPDATE_INTERVAL = 3;
+    public static final int UPDATE_INTERVAL = 1;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
     private static final int PERMISSIONS_WAKELOCK = 98;
 
@@ -60,21 +67,33 @@ public class HunterScreenActivity extends AppCompatActivity {
     private LocationCallback locationCallBack;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
-    private PowerManager.WakeLock wl;
+    private SensorManager sensorManager;
+    private final float[] accelerometerReading = new float[3];
+    private final float[] magnetometerReading = new float[3];
+
+    private final float[] rotationMatrix = new float[9];
+    private final float[] orientationAngles = new float[3];
+
+    private Float lastAngle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hunter_screen);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         hotColdCircle = findViewById(R.id.hotColdCircle);
+        orientationCursor = findViewById(R.id.orientationCursor);
         hotColdText = findViewById(R.id.hotCold);
         distanceText = findViewById(R.id.distance);
+        angleText = findViewById(R.id.angleText);
 
-        Drawable hotColdCircleDrawable = hotColdCircle.getBackground();
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         locationRequest = LocationRequest.create()
-                .setInterval(1000 * DEFAULT_UPDATE_INTERVAL)
+                .setInterval(1000 * UPDATE_INTERVAL)
+                .setFastestInterval(1000 * UPDATE_INTERVAL)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
         //event that is triggered whenever the time interval is met
@@ -87,10 +106,10 @@ public class HunterScreenActivity extends AppCompatActivity {
                 double playerLatitude = locationResult.getLastLocation().getLatitude();
                 double playerAltitude = locationResult.getLastLocation().getAltitude();
 
-                System.out.println("Current :::::: " + playerLatitude + ", " + playerLongitude + ", " + playerAltitude);
+                Float phoneAzimuth = updateOrientationAngles();
 
                 LocationDTO locationDTO = new LocationDTO(Player.getGlobalName(),
-                        playerLatitude, playerLongitude, playerAltitude);
+                        playerLatitude, playerLongitude, playerAltitude, phoneAzimuth);
 
                 Call<DistanceDTO> distanceDTOCall = RESTClient
                         .getInstance()
@@ -107,24 +126,21 @@ public class HunterScreenActivity extends AppCompatActivity {
 
                         if (gameStateResult == 4) {
                             Toast.makeText(HunterScreenActivity.this, "Fox WON!", Toast.LENGTH_SHORT).show();
+
                             stopLocationUpdates();
-                            if(wl.isHeld()) {
-                                wl.release();
-                            }
                             finish();
+
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
                         } else if (gameStateResult == 5) {
                             Toast.makeText(HunterScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
+
                             stopLocationUpdates();
-                            if(wl.isHeld()) {
-                                wl.release();
-                            }
                             finish();
+
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
                         }
 
                         Double distance = response.body().getDistance();
-                        System.out.println("=======================> " + distance);
 
                         if (distance == -1) {
                             //waiting for he fox to send location
@@ -150,6 +166,16 @@ public class HunterScreenActivity extends AppCompatActivity {
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
                             hotColdText.setText("OUT OF BOUNDS");
                         }
+
+                        Double angle = response.body().getAngle();
+
+                        angleText.setText(Double.toString(angle));
+
+                        if(angle <= 30) {
+                            orientationCursor.getBackground().setColorFilter(getColor(R.color.hot), PorterDuff.Mode.SRC_ATOP);
+                        } else {
+                            orientationCursor.getBackground().setColorFilter(getColor(R.color.very_cold), PorterDuff.Mode.SRC_ATOP);
+                        }
                     }
 
                     @Override
@@ -160,17 +186,72 @@ public class HunterScreenActivity extends AppCompatActivity {
             }
         };
 
-        acquireWakeLock();
         configureGPS();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if(accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer,
+                    SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
+        }
+        Sensor magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if(magneticField != null) {
+            sensorManager.registerListener(this, magneticField,
+                    SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        stopLocationUpdates();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, accelerometerReading,
+                    0, accelerometerReading.length);
+        } else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, magnetometerReading,
+                    0, magnetometerReading.length);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //do something if sensor accuracy changes
+    }
+
+    public Float updateOrientationAngles() {
+        SensorManager.getRotationMatrix(rotationMatrix, null,
+                accelerometerReading, magnetometerReading);
+
+        float[] orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+        System.out.println("angle ============= " + orientation[0]);
+
+        if(lastAngle == null ) {
+            lastAngle = orientation[0];
+            return orientation[0];
+        }
+
+        return orientation[0];
     }
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, Looper.getMainLooper());
     }
 
     private void stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
+        sensorManager.unregisterListener(this);
     }
 
     @Override
@@ -213,20 +294,6 @@ public class HunterScreenActivity extends AppCompatActivity {
             //permissions not granted yet
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
-            }
-        }
-    }
-
-    @SuppressLint("InvalidWakeLockTag")
-    private void acquireWakeLock() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED) {
-            PowerManager pm = (PowerManager) HunterScreenActivity.this.getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
-            wl.acquire();
-        } else {
-            //permissions not granted yet
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.WAKE_LOCK}, PERMISSIONS_WAKELOCK);
             }
         }
     }
