@@ -20,34 +20,44 @@
         tools:targetApi="31">
         <activity
             android:name=".activities.FoxScreenActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".activities.HunterScreenActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".activities.HideCounterActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".activities.WaitLobbyActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".activities.GPSActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".activities.GameHistoryActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".activities.HomeScreenActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".login.ForgotPassword"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".login.RegisterUser"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".activities.ProfileActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

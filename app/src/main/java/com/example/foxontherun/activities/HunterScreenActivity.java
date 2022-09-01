@@ -302,4 +302,11 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         //primesc distanta si status game
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        stopLocationUpdates();
+        finish();
+    }
 }

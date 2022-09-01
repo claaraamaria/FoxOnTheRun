@@ -153,4 +153,12 @@ public class WaitLobbyActivity extends AppCompatActivity {
 
         progressBar.startAnimation(animation);
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        handler.removeCallbacks(runnable);
+        finish();
+    }
 }

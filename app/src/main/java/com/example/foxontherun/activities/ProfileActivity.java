@@ -75,6 +75,11 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(ProfileActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
     }
 }

@@ -190,4 +190,12 @@ public class FoxScreenActivity extends AppCompatActivity {
     private void updateUIValues(Location lastLocation) {
         //primesc distanta si status game
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        stopLocationUpdates();
+        finish();
+    }
 }

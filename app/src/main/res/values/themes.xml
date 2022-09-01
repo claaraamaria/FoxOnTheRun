@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.FoxOnTheRun" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.FoxOnTheRun" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#B35C00</item>
         <item name="colorPrimaryVariant">#B35C00</item>

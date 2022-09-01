@@ -170,4 +170,11 @@ public class HideCounterActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        handler.removeCallbacks(runnable);
+        finish();
+    }
 }

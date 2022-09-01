@@ -101,11 +101,9 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.gameHistory:
-                finish();
                 startActivity(new Intent(this, GameHistoryActivity.class));
                 break;
             case R.id.profile:
-                finish();
                 startActivity(new Intent(this, ProfileActivity.class));
                 break;
         }
@@ -169,9 +167,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 Boolean result = response.body();
-                System.out.println(result.booleanValue());
                 if (result) {
-                    finish();
                     startActivity(new Intent(HomeScreenActivity.this, WaitLobbyActivity.class));
                 } else {
                     Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
