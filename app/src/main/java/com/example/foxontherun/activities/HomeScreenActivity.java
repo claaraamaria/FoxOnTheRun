@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
+import com.example.foxontherun.helper.Helper;
 import com.example.foxontherun.model.GameConfiguration;
 import com.example.foxontherun.model.Player;
 import com.example.foxontherun.model.User;
@@ -157,26 +158,30 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void roomCodeCorrect(String roomCode) {
-        Call<Boolean> callResult = RESTClient
+        Call<Integer> callResult = RESTClient
                 .getInstance()
                 .getApi()
                 .joinRoom(roomCode, Player.getGlobalName());
 
-        callResult.enqueue(new Callback<Boolean>() {
+        callResult.enqueue(new Callback<Integer>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                Boolean result = response.body();
-                if (result) {
-                    startActivity(new Intent(HomeScreenActivity.this, WaitLobbyActivity.class));
-                } else {
-                    Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if(response.body() == null) {
+                    return;
                 }
+
+                Integer result = response.body();
+
+                if(result == null) {
+                    return;
+                }
+
+                Helper.getRoleCall(HomeScreenActivity.this, result);
             }
 
             @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-                System.out.println(t.getMessage());
+            public void onFailure(Call<Integer> call, Throwable t) {
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });

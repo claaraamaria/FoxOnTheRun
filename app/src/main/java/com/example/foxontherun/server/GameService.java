@@ -20,7 +20,7 @@ import retrofit2.http.Path;
 public interface GameService {
 
     @POST("game/join/{roomName}/{playerName}")
-    Call<Boolean> joinRoom(@Path("roomName") String roomName, @Path("playerName") String playerName);
+    Call<Integer> joinRoom(@Path("roomName") String roomName, @Path("playerName") String playerName);
 
     @POST("game/location/{roomName}")
     Call<DistanceDTO> updateLocation(@Path("roomName") String roomName, @Body LocationDTO playerLocation);

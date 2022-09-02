@@ -22,7 +22,7 @@
         android:layout_marginTop="20dp"/>
 
     <TextView
-        android:id="@+id/angleText"
+        android:id="@+id/countdownText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-black"
@@ -42,7 +42,7 @@
         android:background="@drawable/triangle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/angleText"/>
+        app:layout_constraintTop_toBottomOf="@id/countdownText"/>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/circleLayout"

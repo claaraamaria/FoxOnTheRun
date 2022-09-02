@@ -15,7 +15,6 @@ import com.example.foxontherun.model.GameConfiguration;
 import com.example.foxontherun.model.LocationDTO;
 import com.example.foxontherun.model.Player;
 import com.example.foxontherun.server.RESTClient;
-import com.google.android.gms.location.LocationRequest;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -36,8 +35,8 @@ public class HideCounterActivity extends AppCompatActivity {
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            handler.postDelayed(runnable, delay);
             updateGameState();
+            handler.postDelayed(runnable, delay);
         }
     };
     private int delay = 3000;
@@ -48,14 +47,11 @@ public class HideCounterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hide_counter);
 
-        role = findViewById(R.id.roleHolder);
-        countdownText = findViewById(R.id.countdown_text);
-
-        role.setText(getRole());
+        this.role = findViewById(R.id.roleHolder);
+        this.countdownText = findViewById(R.id.countdown_text);
 
         calculateTimeLeft();
-        updateTimer();
-
+        getRole();
     }
 
     public void calculateTimeLeft() {
@@ -108,7 +104,13 @@ public class HideCounterActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                stopTimer();
+                if(timerRunning) {
+                    stopTimer();
+                }
+                countdownText.setText("The game will start very soon");
+                if(!handlerStarted) {
+                    startCallHandler();
+                }
             }
         }.start();
         timerRunning = true;
@@ -126,17 +128,21 @@ public class HideCounterActivity extends AppCompatActivity {
 
         countdownText.setText(timeLeftText);
 
-        if((timeLeftMilliseconds / 1000) <= 30 && !this.handlerStarted) {
-            this.handlerStarted = true;
-            handler.postDelayed(runnable, delay);
+        if((timeLeftMilliseconds / 1000) <= 30 && !this.handlerStarted) { //cand raman 30 de sec
+            startCallHandler();
         }
     }
 
-    private String getRole() {
+    void startCallHandler() {
+        this.handlerStarted = true;
+        handler.postDelayed(runnable, delay);
+    }
+
+    private void getRole() {
         if (Player.getGlobalRole()) {
-            return "Hunter";
+            this.role.setText("Hunter");
         } else {
-            return "Fox";
+            this.role.setText("Fox");
         }
     }
 
@@ -173,7 +179,6 @@ public class HideCounterActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
         handler.removeCallbacks(runnable);
         finish();
     }
