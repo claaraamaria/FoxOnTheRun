@@ -9,14 +9,12 @@ import com.example.foxontherun.R;
 
 public class GameHistoryActivity extends AppCompatActivity {
 
-    private TextView historyTextview;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_history);
 
-        historyTextview = findViewById(R.id.historyText);
+        TextView historyTextview = findViewById(R.id.historyText);
     }
 
     @Override

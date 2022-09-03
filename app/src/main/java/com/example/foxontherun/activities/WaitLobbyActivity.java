@@ -37,8 +37,7 @@ public class WaitLobbyActivity extends AppCompatActivity {
 
     Handler handler = new Handler();
     Runnable runnable;
-    private int delay = 3000;
-
+    private final int delay = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +144,6 @@ public class WaitLobbyActivity extends AppCompatActivity {
             }
         });
     }
-
 
     public void progressAnimation(Long timeLeftMs) {
         ProgressBarAnimation animation = new ProgressBarAnimation(this, progressBar, loadingNumber, 0f, 100f);

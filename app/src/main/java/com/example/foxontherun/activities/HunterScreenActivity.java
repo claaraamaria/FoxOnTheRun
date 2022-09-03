@@ -55,10 +55,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
     private View orientationCursor;
     private TextView hotColdText, distanceText, angleText;
 
-    private CountDownTimer countDownTimer;
-    private long timeLeftMilliseconds = 180000; // 3 min
-    private boolean timerRunning;
-
     public static final int UPDATE_INTERVAL = 1;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
     private static final int PERMISSIONS_WAKELOCK = 98;
@@ -166,6 +162,8 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
                             hotColdText.setText("OUT OF BOUNDS");
                         }
+
+                        distanceText.setText(distance.toString());
 
                         Double angle = response.body().getAngle();
 
@@ -285,7 +283,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                 public void onSuccess(Location location) {
                     //we got permissions. Put the values of location. xxx into the UI components
                     if (location != null) {
-                        updateUIValues(location);
                         startLocationUpdates();
                     }
                 }
@@ -296,10 +293,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
             }
         }
-    }
-
-    private void updateUIValues(Location lastLocation) {
-        //primesc distanta si status game
     }
 
     @Override

@@ -35,10 +35,6 @@
             android:exported="false"
             android:parentActivityName=".activities.HomeScreenActivity"/>
         <activity
-            android:name=".activities.GPSActivity"
-            android:exported="false"
-            android:parentActivityName=".activities.HomeScreenActivity"/>
-        <activity
             android:name=".activities.GameHistoryActivity"
             android:exported="false"
             android:parentActivityName=".activities.HomeScreenActivity"/>

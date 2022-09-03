@@ -23,18 +23,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private FirebaseUser user;
-    private DatabaseReference reference;
-    private String userID;
-
-    private Button logout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        logout = (Button) findViewById(R.id.signOut);
+        Button logout = (Button) findViewById(R.id.signOut);
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,9 +38,9 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("Users");
-        userID = user.getUid();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        String userID = user.getUid();
 
         final TextView greetingTextView = findViewById(R.id.greeting);
         final TextView fullNameTextView = findViewById(R.id.fullName);

@@ -10,14 +10,12 @@ import android.widget.Toast;
 
 public class ProgressBarAnimation extends Animation {
 
-    private Context context;
-    private ProgressBar progressBar;
-    private TextView textView;
-    private float from;
-    private float to;
+    private final ProgressBar progressBar;
+    private final TextView textView;
+    private final float from;
+    private final float to;
 
     public ProgressBarAnimation(Context context, ProgressBar progressBar, TextView textView, float from, float to) {
-        this.context = context;
         this.progressBar = progressBar;
         this.textView = textView;
         this.from = from;
@@ -31,10 +29,5 @@ public class ProgressBarAnimation extends Animation {
         progressBar.setProgress((int) value);
         textView.setText((int) value + "%");
 
-//        if (value == to) {
-//
-//
-//             context.startActivity(new Intent(HomeScreenActivity.this, LoadingActivity.class));
-//        }
     }
 }

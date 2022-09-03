@@ -25,8 +25,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterUser extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView banner;
-    private Button registerUserBtn;
     private EditText editTextFullName, editTextUsername, editTextEmail, editTextPassword;
     private ProgressBar progressBar;
 
@@ -39,18 +37,18 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
 
         fAuth = FirebaseAuth.getInstance();
 
-        banner = (TextView) findViewById(R.id.banner);
+        TextView banner = findViewById(R.id.banner);
         banner.setOnClickListener(this);
 
-        registerUserBtn = (Button) findViewById(R.id.registerUserBtn);
+        Button registerUserBtn = findViewById(R.id.registerUserBtn);
         registerUserBtn.setOnClickListener(this);
 
-        editTextFullName = (EditText) findViewById(R.id.fullName);
-        editTextUsername = (EditText) findViewById(R.id.username);
-        editTextEmail = (EditText) findViewById(R.id.email);
-        editTextPassword = (EditText) findViewById(R.id.password);
+        editTextFullName = findViewById(R.id.fullName);
+        editTextUsername = findViewById(R.id.username);
+        editTextEmail = findViewById(R.id.email);
+        editTextPassword = findViewById(R.id.password);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     @Override
@@ -120,7 +118,6 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
                                         Toast.makeText(RegisterUser.this, "User has been registered successfully!", Toast.LENGTH_SHORT).show();
-                                        //redirect to login layout!
                                     } else {
                                         Toast.makeText(RegisterUser.this, "Failed to register! Something went wrong!", Toast.LENGTH_SHORT).show();
                                     }
@@ -133,8 +130,6 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
-
     }
-
 
 }

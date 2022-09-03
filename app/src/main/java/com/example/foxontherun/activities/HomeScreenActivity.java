@@ -38,37 +38,31 @@ import retrofit2.Response;
 
 public class HomeScreenActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private FirebaseUser user;
-    private DatabaseReference reference;
-    private String userID;
-
     private TextView usernameTextView;
-    private Button historyBtn, profileBtn, playBtn;
-    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("Users");
-        userID = user.getUid();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        String userID = user.getUid();
 
         initializeGameConfiguration();
 
         usernameTextView = findViewById(R.id.username);
 
-        historyBtn = findViewById(R.id.gameHistory);
+        Button historyBtn = findViewById(R.id.gameHistory);
         historyBtn.setOnClickListener(this);
 
-        profileBtn = findViewById(R.id.profile);
+        Button profileBtn = findViewById(R.id.profile);
         profileBtn.setOnClickListener(this);
 
-        playBtn = findViewById(R.id.play);
+        Button playBtn = findViewById(R.id.play);
         playBtn.setOnClickListener(this);
 
-        progressBar = findViewById(R.id.progressBar);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +70,6 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 showCodeRoomDialog();
             }
         });
-
 
         reference.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

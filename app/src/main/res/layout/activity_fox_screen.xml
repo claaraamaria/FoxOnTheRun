@@ -11,12 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:elevation="30dp"
         android:fontFamily="sans-serif-black"
         android:text="Fox on the run"
         android:textAlignment="center"
         android:textSize="60sp"
         android:textStyle="bold"
-        android:elevation="30dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,12 +25,12 @@
         android:id="@+id/bannerDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="30dp"
         android:fontFamily="sans-serif-black"
         android:text="Everybody is looking for YOU!"
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="italic"
-        android:elevation="30dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/banner" />
@@ -39,25 +39,51 @@
         android:id="@+id/foxText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You are THE FOX"
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-black"
+        android:text="You are THE FOX"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="40sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bannerDescription"/>
+        app:layout_constraintTop_toBottomOf="@id/bannerDescription" />
 
-    <!--<fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/browser_actions_context_menu_max_width"
-        android:maxWidth="@dimen/browser_actions_context_menu_max_width"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/foxText"
-        tools:context="com.example.app.MapLocationActivity"
-        tools:layout_editor_absoluteX="10dp" />-->
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/circleLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/foxText">
+
+        <View
+            android:id="@+id/circle"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/hotCold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="sans-serif-black"
+            android:text="5:00"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="parent" />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

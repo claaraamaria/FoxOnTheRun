@@ -26,12 +26,14 @@ import retrofit2.Response;
 
 public class HideCounterActivity extends AppCompatActivity {
 
-    private TextView role, countdownText;
+    private TextView countdownText;
 
     private CountDownTimer countDownTimer;
     private long timeLeftMilliseconds;
     private boolean timerRunning;
 
+    private Boolean handlerStarted = false;
+    private final int delay = 3000;
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
@@ -40,22 +42,19 @@ public class HideCounterActivity extends AppCompatActivity {
             updateGameState();
         }
     };
-    private int delay = 3000;
-    private Boolean handlerStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hide_counter);
 
-        role = findViewById(R.id.roleHolder);
+        TextView role = findViewById(R.id.roleHolder);
         countdownText = findViewById(R.id.countdown_text);
 
         role.setText(getRole());
 
         calculateTimeLeft();
         updateTimer();
-
     }
 
     public void calculateTimeLeft() {
@@ -126,7 +125,7 @@ public class HideCounterActivity extends AppCompatActivity {
 
         countdownText.setText(timeLeftText);
 
-        if((timeLeftMilliseconds / 1000) <= 30 && !this.handlerStarted) {
+        if ((timeLeftMilliseconds / 1000) <= 30 && !this.handlerStarted) {
             this.handlerStarted = true;
             handler.postDelayed(runnable, delay);
         }

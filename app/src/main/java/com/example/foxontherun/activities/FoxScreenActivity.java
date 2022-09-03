@@ -101,17 +101,13 @@ public class FoxScreenActivity extends AppCompatActivity {
 
                         if (gameStateResult == 4) {
                             Toast.makeText(FoxScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
-
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
                         } else if (gameStateResult == 5) {
                             Toast.makeText(FoxScreenActivity.this, "Hunters WON!", Toast.LENGTH_SHORT).show();
-
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
                         }
                     }
