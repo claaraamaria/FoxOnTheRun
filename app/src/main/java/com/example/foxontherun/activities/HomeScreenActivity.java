@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
+import com.example.foxontherun.helper.Helper;
 import com.example.foxontherun.model.GameConfiguration;
 import com.example.foxontherun.model.Player;
 import com.example.foxontherun.model.User;
@@ -38,36 +39,43 @@ import retrofit2.Response;
 
 public class HomeScreenActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private FirebaseUser user;
+    private DatabaseReference reference;
+    private String userID;
+
     private TextView usernameTextView;
+    private Button historyBtn, profileBtn, playBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-        String userID = user.getUid();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("Users");
+        userID = user.getUid();
 
         initializeGameConfiguration();
 
         usernameTextView = findViewById(R.id.username);
 
-        Button historyBtn = findViewById(R.id.gameHistory);
+        historyBtn = findViewById(R.id.gameHistory);
         historyBtn.setOnClickListener(this);
 
-        Button profileBtn = findViewById(R.id.profile);
+        profileBtn = findViewById(R.id.profile);
         profileBtn.setOnClickListener(this);
 
-        Button playBtn = findViewById(R.id.play);
+        playBtn = findViewById(R.id.play);
         playBtn.setOnClickListener(this);
-
-        ProgressBar progressBar = findViewById(R.id.progressBar);
 
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCodeRoomDialog();
+                if(Player.getGlobalRoomName() == null) {
+                    showCodeRoomDialog();
+                } else {
+                    roomCodeCorrect(Player.getGlobalRoomName());
+                }
             }
         });
 
@@ -88,6 +96,17 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(Player.getGlobalRoomName() == null) {
+            playBtn.setText("LET'S PLAY");
+        }
+        else {
+            playBtn.setText("RETURN TO ROOM");
+        }
     }
 
     @Override
@@ -138,38 +157,47 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String roomCode = roomCodeEt.getText().toString();
+                if(roomCodeEt.getText().toString().isEmpty()) {
+                    roomCodeEt.setError("Name should not be empty!");
+                    roomCodeEt.requestFocus();
+                } else {
+                    String roomCode = roomCodeEt.getText().toString();
 
-                Player.setGlobalRoomName(roomCode);
+                    Player.setGlobalRoomName(roomCode);
 
-                roomCodeCorrect(roomCode);
-                dialog.dismiss();
+                    roomCodeCorrect(roomCode);
+                    dialog.dismiss();
+                }
             }
         });
         dialog.show();
     }
 
     private void roomCodeCorrect(String roomCode) {
-        Call<Boolean> callResult = RESTClient
+        Call<Integer> callResult = RESTClient
                 .getInstance()
                 .getApi()
                 .joinRoom(roomCode, Player.getGlobalName());
 
-        callResult.enqueue(new Callback<Boolean>() {
+        callResult.enqueue(new Callback<Integer>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                Boolean result = response.body();
-                if (result) {
-                    startActivity(new Intent(HomeScreenActivity.this, WaitLobbyActivity.class));
-                } else {
-                    Toast.makeText(HomeScreenActivity.this, "Invalid Code Room!", Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if(response.body() == null) {
+                    return;
                 }
+
+                Integer result = response.body();
+
+                if(result == null) {
+                    return;
+                }
+
+                Helper.getRoleCall(HomeScreenActivity.this, result);
             }
 
             @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-                System.out.println(t.getMessage());
+            public void onFailure(Call<Integer> call, Throwable t) {
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });

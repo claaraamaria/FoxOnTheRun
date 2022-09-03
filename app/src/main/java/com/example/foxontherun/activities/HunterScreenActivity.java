@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 
 import com.example.foxontherun.R;
 import com.example.foxontherun.model.DistanceDTO;
+import com.example.foxontherun.model.GameConfiguration;
 import com.example.foxontherun.model.LocationDTO;
 import com.example.foxontherun.model.Player;
 import com.example.foxontherun.server.RESTClient;
@@ -45,6 +47,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,11 +58,14 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
     private View hotColdCircle;
     private View orientationCursor;
-    private TextView hotColdText, distanceText, angleText;
+    private TextView hotColdText, distanceText, countdownText;
+
+    private CountDownTimer countDownTimer;
+    private long timeLeftMilliseconds;
+    private boolean timerRunning;
 
     public static final int UPDATE_INTERVAL = 1;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
-    private static final int PERMISSIONS_WAKELOCK = 98;
 
     private LocationRequest locationRequest;
     private LocationCallback locationCallBack;
@@ -70,11 +78,10 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
     private final float[] rotationMatrix = new float[9];
     private final float[] orientationAngles = new float[3];
 
-    private Float lastAngle;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_hunter_screen);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -83,7 +90,7 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         orientationCursor = findViewById(R.id.orientationCursor);
         hotColdText = findViewById(R.id.hotCold);
         distanceText = findViewById(R.id.distance);
-        angleText = findViewById(R.id.angleText);
+        countdownText = findViewById(R.id.countdownText);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -102,7 +109,7 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                 double playerLatitude = locationResult.getLastLocation().getLatitude();
                 double playerAltitude = locationResult.getLastLocation().getAltitude();
 
-                Float phoneAzimuth = updateOrientationAngles();
+                Float phoneAzimuth = getOrientationAngles();
 
                 LocationDTO locationDTO = new LocationDTO(Player.getGlobalName(),
                         playerLatitude, playerLongitude, playerAltitude, phoneAzimuth);
@@ -125,15 +132,15 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
+
                         } else if (gameStateResult == 5) {
                             Toast.makeText(HunterScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
 
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
+
                         }
 
                         Double distance = response.body().getDistance();
@@ -146,28 +153,30 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                             //hot
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.hot), PorterDuff.Mode.SRC_ATOP);
                             hotColdText.setText("HOT");
+                            distanceText.setText("Between 11 and 22 meters");
                         } else if (distance < 22) {
                             //warm
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.warm), PorterDuff.Mode.SRC_ATOP);
                             hotColdText.setText("WARM");
+                            distanceText.setText("Between 22 and 33 meters");
                         } else if (distance < 33) {
                             //cold
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.cold), PorterDuff.Mode.SRC_ATOP);
                             hotColdText.setText("COLD");
+                            distanceText.setText("Between 33 and 44 meters");
                         } else if (distance < 44) {
                             //verycold
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.very_cold), PorterDuff.Mode.SRC_ATOP);
                             hotColdText.setText("VERY COLD");
+                            distanceText.setText("Between 44 and 55 meters");
                         } else if (distance > 55) {
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
+                            hotColdText.setTextColor(getColor(R.color.white));
                             hotColdText.setText("OUT OF BOUNDS");
+                            distanceText.setText("More than 55 meters");
                         }
 
-                        distanceText.setText(distance.toString());
-
                         Double angle = response.body().getAngle();
-
-                        angleText.setText(Double.toString(angle));
 
                         if(angle <= 30) {
                             orientationCursor.getBackground().setColorFilter(getColor(R.color.hot), PorterDuff.Mode.SRC_ATOP);
@@ -178,6 +187,8 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
                     @Override
                     public void onFailure(Call<DistanceDTO> call, Throwable t) {
+                        stopLocationUpdates();
+                        finish();
                         Toast.makeText(HunterScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -185,12 +196,12 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         };
 
         configureGPS();
+        calculateTimeLeft();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         if(accelerometer != null) {
             sensorManager.registerListener(this, accelerometer,
@@ -201,13 +212,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
             sensorManager.registerListener(this, magneticField,
                     SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        stopLocationUpdates();
     }
 
     @Override
@@ -226,18 +230,11 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         //do something if sensor accuracy changes
     }
 
-    public Float updateOrientationAngles() {
+    public Float getOrientationAngles() {
         SensorManager.getRotationMatrix(rotationMatrix, null,
                 accelerometerReading, magnetometerReading);
 
         float[] orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles);
-
-        System.out.println("angle ============= " + orientation[0]);
-
-        if(lastAngle == null ) {
-            lastAngle = orientation[0];
-            return orientation[0];
-        }
 
         return orientation[0];
     }
@@ -264,13 +261,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                     Toast.makeText(this, "Permission must be granted in order to function!", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case PERMISSIONS_WAKELOCK:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    return;
-                } else {
-                    Toast.makeText(this, "Wakelock permission must be granted in order to function!", Toast.LENGTH_SHORT).show();
-                }
-                break;
         }
     }
 
@@ -295,11 +285,80 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
+    public void calculateTimeLeft() {
+        Call<Date> getStartDateCall = RESTClient
+                .getInstance()
+                .getApi()
+                .getStartDate(Player.getGlobalRoomName());
 
-        stopLocationUpdates();
+        getStartDateCall.enqueue(new Callback<Date>() {
+            @Override
+            public void onResponse(Call<Date> call, Response<Date> response) {
+                Long startDateTime = response.body().getTime();
+                setStartDateTime(startDateTime);
+            }
+
+            @Override
+            public void onFailure(Call<Date> call, Throwable t) {
+                //can't go wrong
+            }
+        });
+    }
+
+    private void setStartDateTime(Long startDateTime) {
+        this.timeLeftMilliseconds = startDateTime +
+                GameConfiguration.getGameOnTimer() * 1000 + 4870 -
+                Calendar.getInstance().getTimeInMillis();
+        startStopTimerFE();
+    }
+
+    private void startStopTimerFE() {
+        if (timerRunning) {
+            stopTimer();
+        } else {
+            startTimerFE();
+        }
+    }
+
+    private void stopTimer() {
+        countDownTimer.cancel();
+        timerRunning = false;
+    }
+
+    private void startTimerFE() {
+        countDownTimer = new CountDownTimer(timeLeftMilliseconds, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftMilliseconds = millisUntilFinished;
+                updateTimer();
+            }
+
+            @Override
+            public void onFinish() {
+                if(timerRunning) {
+                    stopTimer();
+                }
+            }
+        }.start();
+        timerRunning = true;
+    }
+
+    private void updateTimer() {
+        int minutes = (int) timeLeftMilliseconds / 60000;
+        int seconds = (int) timeLeftMilliseconds % 60000 / 1000;
+
+        String timeLeftText;
+        timeLeftText = "" + minutes;
+        timeLeftText += ":";
+        if (seconds < 10) timeLeftText += "0";
+        timeLeftText += seconds;
+
+        countdownText.setText(timeLeftText);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
         finish();
     }
 }

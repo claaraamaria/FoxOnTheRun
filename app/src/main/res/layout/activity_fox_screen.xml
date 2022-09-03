@@ -29,7 +29,7 @@
         android:fontFamily="sans-serif-black"
         android:text="Everybody is looking for YOU!"
         android:textAlignment="center"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:textStyle="italic"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

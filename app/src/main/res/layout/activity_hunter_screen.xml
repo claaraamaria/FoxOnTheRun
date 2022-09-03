@@ -22,7 +22,7 @@
         android:layout_marginTop="20dp"/>
 
     <TextView
-        android:id="@+id/angleText"
+        android:id="@+id/countdownText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-black"
@@ -42,7 +42,7 @@
         android:background="@drawable/triangle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/angleText"/>
+        app:layout_constraintTop_toBottomOf="@id/countdownText"/>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/circleLayout"
@@ -106,17 +106,16 @@
             android:id="@+id/distance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:elevation="40dp"
             android:fontFamily="sans-serif-black"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
             android:text="Distance from Fox"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="30dp"
-            android:elevation="40dp"
+            android:textSize="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="parent"/>
+            app:layout_constraintRight_toLeftOf="parent" />
 
     </RelativeLayout>
 

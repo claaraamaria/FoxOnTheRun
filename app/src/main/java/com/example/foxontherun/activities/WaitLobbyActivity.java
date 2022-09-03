@@ -131,6 +131,8 @@ public class WaitLobbyActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<Boolean> call, Throwable t) {
+                            handler.removeCallbacks(runnable);
+                            finish();
                             Toast.makeText(WaitLobbyActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -139,7 +141,8 @@ public class WaitLobbyActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<DistanceDTO> call, Throwable t) {
-                System.out.println(t.getMessage());
+                handler.removeCallbacks(runnable);
+                finish();
                 Toast.makeText(WaitLobbyActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
@@ -155,8 +158,11 @@ public class WaitLobbyActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
 
-        handler.removeCallbacks(runnable);
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
         finish();
     }
 }
