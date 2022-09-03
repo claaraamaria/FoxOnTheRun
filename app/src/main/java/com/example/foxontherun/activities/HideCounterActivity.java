@@ -171,6 +171,8 @@ public class HideCounterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<DistanceDTO> call, Throwable t) {
+                handler.removeCallbacks(runnable);
+                finish();
                 Toast.makeText(HideCounterActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
@@ -179,7 +181,11 @@ public class HideCounterActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
         finish();
     }
 }

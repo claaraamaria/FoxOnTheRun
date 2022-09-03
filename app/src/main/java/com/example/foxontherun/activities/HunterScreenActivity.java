@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -65,7 +66,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
     public static final int UPDATE_INTERVAL = 1;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
-    private static final int PERMISSIONS_WAKELOCK = 98;
 
     private LocationRequest locationRequest;
     private LocationCallback locationCallBack;
@@ -78,11 +78,10 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
     private final float[] rotationMatrix = new float[9];
     private final float[] orientationAngles = new float[3];
 
-    private Float lastAngle;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_hunter_screen);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -110,7 +109,7 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                 double playerLatitude = locationResult.getLastLocation().getLatitude();
                 double playerAltitude = locationResult.getLastLocation().getAltitude();
 
-                Float phoneAzimuth = updateOrientationAngles();
+                Float phoneAzimuth = getOrientationAngles();
 
                 LocationDTO locationDTO = new LocationDTO(Player.getGlobalName(),
                         playerLatitude, playerLongitude, playerAltitude, phoneAzimuth);
@@ -133,15 +132,15 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
+
                         } else if (gameStateResult == 5) {
                             Toast.makeText(HunterScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
 
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
+
                         }
 
                         Double distance = response.body().getDistance();
@@ -172,6 +171,7 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                             distanceText.setText("Between 44 and 55 meters");
                         } else if (distance > 55) {
                             hotColdCircle.getBackground().setColorFilter(getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
+                            hotColdText.setTextColor(getColor(R.color.white));
                             hotColdText.setText("OUT OF BOUNDS");
                             distanceText.setText("More than 55 meters");
                         }
@@ -187,6 +187,8 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
                     @Override
                     public void onFailure(Call<DistanceDTO> call, Throwable t) {
+                        stopLocationUpdates();
+                        finish();
                         Toast.makeText(HunterScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -194,12 +196,12 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         };
 
         configureGPS();
+        calculateTimeLeft();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         if(accelerometer != null) {
             sensorManager.registerListener(this, accelerometer,
@@ -210,13 +212,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
             sensorManager.registerListener(this, magneticField,
                     SensorManager.SENSOR_DELAY_NORMAL, SensorManager.SENSOR_DELAY_UI);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        stopLocationUpdates();
     }
 
     @Override
@@ -235,18 +230,11 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         //do something if sensor accuracy changes
     }
 
-    public Float updateOrientationAngles() {
+    public Float getOrientationAngles() {
         SensorManager.getRotationMatrix(rotationMatrix, null,
                 accelerometerReading, magnetometerReading);
 
         float[] orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles);
-
-        System.out.println("angle ============= " + orientation[0]);
-
-        if(lastAngle == null ) {
-            lastAngle = orientation[0];
-            return orientation[0];
-        }
 
         return orientation[0];
     }
@@ -273,13 +261,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                     Toast.makeText(this, "Permission must be granted in order to function!", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case PERMISSIONS_WAKELOCK:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    return;
-                } else {
-                    Toast.makeText(this, "Wakelock permission must be granted in order to function!", Toast.LENGTH_SHORT).show();
-                }
-                break;
         }
     }
 
@@ -292,7 +273,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                 public void onSuccess(Location location) {
                     //we got permissions. Put the values of location. xxx into the UI components
                     if (location != null) {
-                        updateUIValues(location);
                         startLocationUpdates();
                     }
                 }
@@ -303,18 +283,6 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
             }
         }
-    }
-
-    private void updateUIValues(Location lastLocation) {
-        //primesc distanta si status game
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        stopLocationUpdates();
-        finish();
     }
 
     public void calculateTimeLeft() {
@@ -339,7 +307,7 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
     private void setStartDateTime(Long startDateTime) {
         this.timeLeftMilliseconds = startDateTime +
-                GameConfiguration.getHideTimer() * 1000 + 4870 -
+                GameConfiguration.getGameOnTimer() * 1000 + 4870 -
                 Calendar.getInstance().getTimeInMillis();
         startStopTimerFE();
     }
@@ -386,5 +354,11 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
         timeLeftText += seconds;
 
         countdownText.setText(timeLeftText);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

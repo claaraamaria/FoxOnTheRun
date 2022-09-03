@@ -1,47 +1,41 @@
 package com.example.foxontherun.activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foxontherun.R;
 import com.example.foxontherun.model.DistanceDTO;
+import com.example.foxontherun.model.GameConfiguration;
 import com.example.foxontherun.model.LocationDTO;
 import com.example.foxontherun.model.Player;
 import com.example.foxontherun.server.RESTClient;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,7 +45,12 @@ public class FoxScreenActivity extends AppCompatActivity {
 
     public static final int UPDATE_INTERVAL = 1;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
-    private static final int PERMISSIONS_WAKELOCK = 98;
+
+    private TextView countdownText;
+
+    private CountDownTimer countDownTimer;
+    private long timeLeftMilliseconds;
+    private boolean timerRunning;
 
     private LocationRequest locationRequest;
     private LocationCallback locationCallBack;
@@ -62,6 +61,8 @@ public class FoxScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fox_screen);
 
+        countdownText = findViewById(R.id.countdownText);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         locationRequest = LocationRequest.create()
@@ -71,6 +72,12 @@ public class FoxScreenActivity extends AppCompatActivity {
 
         //event that is triggered whenever the time interval is met
         locationCallBack = new LocationCallback() {
+            @Override
+            public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {
+                super.onLocationAvailability(locationAvailability);
+                System.out.println("IS LOCATION AVAILABLE ? -> " + locationAvailability.isLocationAvailable());
+            }
+
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
@@ -104,15 +111,15 @@ public class FoxScreenActivity extends AppCompatActivity {
 
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
+
                         } else if (gameStateResult == 5) {
                             Toast.makeText(FoxScreenActivity.this, "Hunters WON!", Toast.LENGTH_SHORT).show();
 
                             stopLocationUpdates();
                             finish();
-
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
+
                         }
                     }
 
@@ -125,18 +132,12 @@ public class FoxScreenActivity extends AppCompatActivity {
         };
 
         configureGPS();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        stopLocationUpdates();
+        calculateTimeLeft();
     }
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, Looper.getMainLooper());
     }
 
     private void stopLocationUpdates() {
@@ -155,13 +156,6 @@ public class FoxScreenActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permission must be granted in order to function!", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case PERMISSIONS_WAKELOCK:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    return;
-                } else {
-                    Toast.makeText(this, "Wakelock permission must be granted in order to function!", Toast.LENGTH_SHORT).show();
-                }
-                break;
         }
     }
 
@@ -174,7 +168,6 @@ public class FoxScreenActivity extends AppCompatActivity {
                 public void onSuccess(Location location) {
                     //we got permissions. Put the values of location. xxx into the UI components
                     if (location != null) {
-                        updateUIValues(location);
                         startLocationUpdates();
                     }
                 }
@@ -187,15 +180,80 @@ public class FoxScreenActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUIValues(Location lastLocation) {
-        //primesc distanta si status game
+    public void calculateTimeLeft() {
+        Call<Date> getStartDateCall = RESTClient
+                .getInstance()
+                .getApi()
+                .getStartDate(Player.getGlobalRoomName());
+
+        getStartDateCall.enqueue(new Callback<Date>() {
+            @Override
+            public void onResponse(Call<Date> call, Response<Date> response) {
+                Long startDateTime = response.body().getTime();
+                setStartDateTime(startDateTime);
+            }
+
+            @Override
+            public void onFailure(Call<Date> call, Throwable t) {
+                //can't go wrong
+            }
+        });
+    }
+
+    private void setStartDateTime(Long startDateTime) {
+        this.timeLeftMilliseconds = startDateTime +
+                GameConfiguration.getGameOnTimer() * 1000 + 4870 -
+                Calendar.getInstance().getTimeInMillis();
+        startStopTimerFE();
+    }
+
+    private void startStopTimerFE() {
+        if (timerRunning) {
+            stopTimer();
+        } else {
+            startTimerFE();
+        }
+    }
+
+    private void stopTimer() {
+        countDownTimer.cancel();
+        timerRunning = false;
+    }
+
+    private void startTimerFE() {
+        countDownTimer = new CountDownTimer(timeLeftMilliseconds, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftMilliseconds = millisUntilFinished;
+                updateTimer();
+            }
+
+            @Override
+            public void onFinish() {
+                if(timerRunning) {
+                    stopTimer();
+                }
+            }
+        }.start();
+        timerRunning = true;
+    }
+
+    private void updateTimer() {
+        int minutes = (int) timeLeftMilliseconds / 60000;
+        int seconds = (int) timeLeftMilliseconds % 60000 / 1000;
+
+        String timeLeftText;
+        timeLeftText = "" + minutes;
+        timeLeftText += ":";
+        if (seconds < 10) timeLeftText += "0";
+        timeLeftText += seconds;
+
+        countdownText.setText(timeLeftText);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
-        stopLocationUpdates();
+    public void onBackPressed() {
+        super.onBackPressed();
         finish();
     }
 }

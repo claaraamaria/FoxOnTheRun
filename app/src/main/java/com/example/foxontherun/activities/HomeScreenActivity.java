@@ -45,7 +45,6 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
 
     private TextView usernameTextView;
     private Button historyBtn, profileBtn, playBtn;
-    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,15 +68,16 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         playBtn = findViewById(R.id.play);
         playBtn.setOnClickListener(this);
 
-        progressBar = findViewById(R.id.progressBar);
-
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCodeRoomDialog();
+                if(Player.getGlobalRoomName() == null) {
+                    showCodeRoomDialog();
+                } else {
+                    roomCodeCorrect(Player.getGlobalRoomName());
+                }
             }
         });
-
 
         reference.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -96,6 +96,17 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(Player.getGlobalRoomName() == null) {
+            playBtn.setText("LET'S PLAY");
+        }
+        else {
+            playBtn.setText("RETURN TO ROOM");
+        }
     }
 
     @Override
@@ -146,12 +157,17 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String roomCode = roomCodeEt.getText().toString();
+                if(roomCodeEt.getText().toString().isEmpty()) {
+                    roomCodeEt.setError("Name should not be empty!");
+                    roomCodeEt.requestFocus();
+                } else {
+                    String roomCode = roomCodeEt.getText().toString();
 
-                Player.setGlobalRoomName(roomCode);
+                    Player.setGlobalRoomName(roomCode);
 
-                roomCodeCorrect(roomCode);
-                dialog.dismiss();
+                    roomCodeCorrect(roomCode);
+                    dialog.dismiss();
+                }
             }
         });
         dialog.show();
