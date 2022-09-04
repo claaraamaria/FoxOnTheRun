@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,7 +70,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Player.getGlobalRoomName() == null) {
+                if (Player.getGlobalRoomName() == null) {
                     showCodeRoomDialog();
                 } else {
                     roomCodeCorrect(Player.getGlobalRoomName());
@@ -101,10 +100,9 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        if(Player.getGlobalRoomName() == null) {
+        if (Player.getGlobalRoomName() == null) {
             playBtn.setText("LET'S PLAY");
-        }
-        else {
+        } else {
             playBtn.setText("RETURN TO ROOM");
         }
     }
@@ -157,7 +155,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(roomCodeEt.getText().toString().isEmpty()) {
+                if (roomCodeEt.getText().toString().isEmpty()) {
                     roomCodeEt.setError("Name should not be empty!");
                     roomCodeEt.requestFocus();
                 } else {
@@ -183,13 +181,13 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if(response.body() == null) {
+                if (response.body() == null) {
                     return;
                 }
 
                 Integer result = response.body();
 
-                if(result == null) {
+                if (result == null) {
                     return;
                 }
 
@@ -198,6 +196,7 @@ public class HomeScreenActivity extends AppCompatActivity implements View.OnClic
 
             @Override
             public void onFailure(Call<Integer> call, Throwable t) {
+                Player.setGlobalRoomName(null);
                 Toast.makeText(HomeScreenActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
             }
         });

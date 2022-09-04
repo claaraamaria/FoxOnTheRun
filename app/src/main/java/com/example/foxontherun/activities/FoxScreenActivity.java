@@ -61,7 +61,7 @@ public class FoxScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fox_screen);
 
-        countdownText = findViewById(R.id.countdownText);
+        countdownText = findViewById(R.id.timerFoxScreen);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -110,12 +110,14 @@ public class FoxScreenActivity extends AppCompatActivity {
                             Toast.makeText(FoxScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
                             stopLocationUpdates();
                             finish();
+                            Player.setGlobalRoomName(null);
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
 
                         } else if (gameStateResult == 5) {
                             Toast.makeText(FoxScreenActivity.this, "Hunters WON!", Toast.LENGTH_SHORT).show();
                             stopLocationUpdates();
                             finish();
+                            Player.setGlobalRoomName(null);
                             startActivity(new Intent(FoxScreenActivity.this, HomeScreenActivity.class));
 
                         }

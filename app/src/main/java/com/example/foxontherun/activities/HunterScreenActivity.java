@@ -129,16 +129,16 @@ public class HunterScreenActivity extends AppCompatActivity implements SensorEve
 
                         if (gameStateResult == 4) {
                             Toast.makeText(HunterScreenActivity.this, "Fox WON!", Toast.LENGTH_SHORT).show();
-
                             stopLocationUpdates();
                             finish();
+                            Player.setGlobalRoomName(null);
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
 
                         } else if (gameStateResult == 5) {
                             Toast.makeText(HunterScreenActivity.this, "You WON!", Toast.LENGTH_SHORT).show();
-
                             stopLocationUpdates();
                             finish();
+                            Player.setGlobalRoomName(null);
                             startActivity(new Intent(HunterScreenActivity.this, HomeScreenActivity.class));
 
                         }
